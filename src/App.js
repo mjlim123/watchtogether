@@ -1,24 +1,21 @@
-import logo from './logo.svg';
+import {Container, Row, Col} from 'react-bootstrap'
 import './App.css';
+import { useState } from 'react';
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
+import WaitingRoom from './components/waitingroom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { createBrowserRouter } from "react-router-dom";
+import Room from './components/room';
+import {Route, Routes} from "react-router-dom"
+import Home from './components/home';
 
 function App() {
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home></Home>}></Route>
+      <Route path="/room/:id" element={<Room></Room>}></Route>
+    </Routes>
   );
 }
 
