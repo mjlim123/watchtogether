@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { HubConnectionBuilder, LogLevel, HubConnectionState } from "@microsoft/signalr";
-import { Form, FormControl, Button } from "react-bootstrap";
+import { Form, FormControl, Button, Stack } from "react-bootstrap";
 import YouTube from 'react-youtube';
+
 
 
 const Room = () => {
@@ -12,16 +13,39 @@ const Room = () => {
 
     const {id} = useParams();
 
+    const [currentVideoId, setCurrentVideoId] = useState('');
     const [queue, setQueue] = useState([]);
-    const [video, setVideo] = useState('');
+    const [currentVideo, setCurrentVideo] = useState('');
     const [user, setUser] = useState(null);
     const [isVisibleUser, setIsVisibleUser] = useState(true);
     const [isVisibleChat, setIsVisibleChat] = useState(false);
     const [roomData, setRoomData] = useState(null);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('')
+    const [videoSearch, setVideoSearch] = useState('')
+    const [videoSearchResults, setVideoSearchResults] = useState([])
+    
     const [connection, setConnection] = useState(null)
     const [btn, setBtn] = useState()
+
+    async function searchYoutube(search) {
+        try{
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${search}&type=video&key=AIzaSyCdRxZyDdm1PSYWpDk2bYOe6VxYCn5ymUY`)
+            const result = await response.json()
+            setVideoSearchResults(result.items)
+
+
+        } catch (error) {
+            console.log(error)
+        }
+        
+    }
+
+    function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+}
 
     function toggleVisibility() {
         setIsVisibleChat(!isVisibleChat);
@@ -36,9 +60,8 @@ const Room = () => {
         setTimeout(putOnCooldown,500)
 
     }
-    async function startup(something) {
-        console.log("Player ready!")
-        setVideo(something)
+    function startup(something) {
+        setCurrentVideo(something)
     }
 
     function handleSubmit(){
@@ -60,17 +83,16 @@ const Room = () => {
     }
 
     function pauseYouTube () {
-        video.target.pauseVideo();
+        currentVideo.target.pauseVideo();
 
     }
 
     function playYouTube () {
-        video.target.playVideo();
+        currentVideo.target.playVideo();
 
     }
     function moveYouTube (time) {
-        console.log("moving...")
-        video.target.seekTo(time);
+        currentVideo.target.seekTo(time);
     }
 
     async function updateMessages(roomData){
@@ -96,35 +118,33 @@ const Room = () => {
         }
     
     const establishConnection = async (user, code) => {
-        console.log(user, code)
         try{
             const newConnection = new HubConnectionBuilder()
                 .withUrl(`${url}/chat`)
                 .configureLogging(LogLevel.Information)
                 .build();
 
-                newConnection.on("SendMessage", (user, message, code) => {
+                newConnection.on("JoinSpecificChatRoom", (user, message, code) => {
                     updateMessages(roomData);
                 });
+                newConnection.on("ChangeVideo", (user, code, videoId) => {
+                    setCurrentVideoId(videoId)
+                })
+
 
             await newConnection.start();
             await newConnection.invoke("JoinSpecificChatRoom", user, code);        
             setConnection(newConnection);
         }
         catch (error) {
-            console.log(error);
+            ;
         }
     };
 
     const sendMessage = async (conn, user, message, code) => {
         try {
-            // Check if the connection is in the 'Connected' state before sending the message
             if (conn.state === HubConnectionState.Connected) {
-                // Invoke the SendMessage method on the server
-                conn.on("SendMessage", (user, message, code) => {
-                    updateMessages(roomData)
-                })
-                    await conn.invoke("SendMessage", user, message, code);
+                await conn.invoke("SendMessage", user, message, code);
             } else {
                 console.warn("SignalR connection is not in the 'Connected' state. Message not sent.");
             }
@@ -135,14 +155,8 @@ const Room = () => {
     }
     const pauseForAll = async (conn, user, code) => {
         try {
-            // Check if the connection is in the 'Connected' state before sending the message
-            if (conn.state === HubConnectionState.Connected) {
-                // Invoke the SendMessage method on the server
-                conn.on("PauseVideo", (user, code) => {
-                    pauseYouTube()
-                })
+            if (conn.state === HubConnectionState.Connected) {    
                 await conn.invoke("PauseVideo", user, code);
-
             } else {
                 console.warn("SignalR connection is not in the 'Connected' state. Message not sent.");
             }
@@ -156,12 +170,8 @@ const Room = () => {
         if (event.data == 3)
             try {
                 let time = event.target.getCurrentTime();
-                // Check if the connection is in the 'Connected' state before sending the message
                 if (conn.state === HubConnectionState.Connected) {
-                    // Invoke the SendMessage method on the server
-                    conn.on("MoveVideoTime", (user, code, time) => {
-                        moveYouTube(time);
-                    })
+            
                     await conn.invoke("MoveVideoTime", user, code, time);
 
                 } else {
@@ -175,12 +185,9 @@ const Room = () => {
 
     const playForAll = async (conn, user, code) => {
         try {
-            // Check if the connection is in the 'Connected' state before sending the message
             if (conn.state === HubConnectionState.Connected) {
-                // Invoke the SendMessage method on the server
-                conn.on("PlayVideo", (user, code) => {
-                    playYouTube()
-                })
+
+                
                 await conn.invoke("PlayVideo", user, code);
 
             } else {
@@ -192,7 +199,23 @@ const Room = () => {
 
     }
 
+    const changeVidForAll = async (conn, user, code, vidId) => {
+        try {
+            if (conn.state === HubConnectionState.Connected) {
+                await conn.invoke("ChangeVideo", user, code, vidId);
+
+            } else {
+                console.warn("SignalR connection is not in the 'Connected' state. Message not sent.");
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+
+        
+    }
+
 // Fetch Room Data
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -209,13 +232,36 @@ const Room = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const resetConnections = () => {
+            try {
+                if (connection.state === HubConnectionState.Connected) {
+                    connection.on("SendMessage", (user, message, code) => {
+                        updateMessages(roomData)
+                    })
+                    connection.on("PauseVideo", (user, code) => {
+                        pauseYouTube()
+                    })
+                    
+                    connection.on("MoveVideoTime", (user, code, time) => {
+                        moveYouTube(time);
+                    })
+                    connection.on("PlayVideo", (user, code) => {
+                        playYouTube()
+                    })
+                }
+            } catch (error) {;}
+        }
+        resetConnections();
+    },[currentVideo])
+
     if (!roomData) {
         return <div>Fetching...</div>
     }
 
     return (
         <div>
-            <Button onClick={()=> console.log(typeof(video.target.getCurrentTime()))}></Button>
+            <Button onClick={()=> console.log(currentVideo.target)}>BUTTON</Button>
             <h1>{roomData.roomName}</h1>
             <h1>{roomData.roomId}</h1>
             <h1>Code: {id}</h1>
@@ -239,8 +285,18 @@ const Room = () => {
                 <FormControl placeholder="Enter message" value={input} onChange={e => setInput(e.target.value)}></FormControl>
                 <Button disabled={btn} type="submit" form="submitMessage">Send</Button>
             </Form>}
+            <Form id="searchVideos" onSubmit={(e)=> {
+                e.preventDefault()
+                searchYoutube(videoSearch)
+            }}>
+                <FormControl placeholder="Search videos" value={videoSearch} onChange={e => setVideoSearch(e.target.value)}></FormControl>
+                <Button type="submit" form="searchVideos">Search</Button>
+            </Form>
             {messages.map((message, index) => <h5 key={index}>{message.author} says:  {message.contents}</h5>)}
-            <YouTube onReady={startup} videoId="yOG0PcutnmY" onStateChange={(e)=>moveVideoTime(e, connection, user, id)} onPause={()=> pauseForAll(connection, user, id)}  onPlay={()=> playForAll(connection, user, id)} ></YouTube>
+            <YouTube onReady={(e)=> startup(e)} videoId={currentVideoId} onStateChange={(e)=>moveVideoTime(e, connection, user, id)} onPause={()=> pauseForAll(connection, user, id)}  onPlay={(e)=> {playForAll(connection, user, id)}} ></YouTube>
+            <Stack>
+                {videoSearchResults.map((vid, index) => <div onClick={() => {changeVidForAll(connection, user, id, vid.id.videoId)}} key={index}>{decodeHtml(vid.snippet.title)}</div>)}
+            </Stack>
         </div>
     )
 }
