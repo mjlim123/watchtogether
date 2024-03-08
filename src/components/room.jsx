@@ -129,6 +129,9 @@ const Room = () => {
                 });
                 newConnection.on("ChangeVideo", (user, code, videoId) => {
                     setCurrentVideoId(videoId)
+                });
+                newConnection.on("SendMessage", (user, message, code) => {
+                    updateMessages(roomData)
                 })
 
 
@@ -236,9 +239,6 @@ const Room = () => {
         const resetConnections = () => {
             try {
                 if (connection.state === HubConnectionState.Connected) {
-                    connection.on("SendMessage", (user, message, code) => {
-                        updateMessages(roomData)
-                    })
                     connection.on("PauseVideo", (user, code) => {
                         pauseYouTube()
                     })
