@@ -4,7 +4,124 @@
     height: 100vh;
   }
 
-  .waitingroomContainer {
-    display: grid;
-    place-items: center;
-  }
+#chatroom {
+  border: 1px solid rgb(224, 219, 219);
+  border-radius: 5px;
+  width: 18vw;
+}
+
+#chatroomContainer {
+  justify-self: end;
+  padding-right: 40px;
+}
+
+.messages {
+  height: 40vw;
+  overflow-y:auto;
+  word-wrap: break-word; /* Ensures long words do not overflow */
+  overflow-wrap: break-word;
+  
+}
+
+.textbox {
+  display: flex;
+  gap: 10px;
+  width: 12vw;
+  justify-content: flex-end;
+  
+}
+
+#style-1::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: #F5F5F5;
+}
+
+#style-1::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #555;
+}
+
+.navBar {
+  display: flex;
+  gap: 30px;
+  background-color: rgb(51, 49, 49);
+  color: white;
+}
+
+.search {
+  display: flex;
+  width: 50vw;
+  justify-content: flex-end;
+  padding-bottom: 10px;
+}
+
+.resultsContainer {
+  display: flex;
+  flex-direction: column;
+  padding-left: 100px;
+  gap: 10px;
+  width: 80vw;
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+.resultsItems {
+
+  border: 2px solid rgb(155, 151, 151);
+  border-radius: 10px;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 10% 90%;
+}
+
+.resultsItems:hover {
+  background-color: rgb(121, 117, 117);
+  transition: all 0.3s ease;
+}
+
+.waitingroomContainer {
+  display: grid;
+  place-items: center;
+}
+
+.videoPlayer {
+  width: 80vw;
+  height: 40vw;
+  padding-left: 100px;
+}
+
+.grid-container {
+  justify-content: center;
+  padding-top: 100px;
+  display: grid;
+  grid-template-columns: 85vw 15vw;
+}
+
+.thumbnails {
+  object-fit: fill;
+}
+
+.background {
+  background-color: rgb(27, 27, 27);
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+body{
+  margin: 0;
+  padding: 0;
+}
+
+.text {
+  color:#F5F5F5;
+  margin: 0;
+}

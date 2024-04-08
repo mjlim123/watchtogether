@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { HubConnectionBuilder, LogLevel, HubConnectionState } from "@microsoft/signalr";
-import { Form, FormControl, Button, Stack } from "react-bootstrap";
+import { Form, FormControl, Button, Stack, Navbar } from "react-bootstrap";
 import YouTube from 'react-youtube';
+import UserModal from "./UserModal";
 
 
 
@@ -10,9 +11,11 @@ const Room = () => {
 
     const key = process.env.REACT_APP_API_KEY;
     const url = process.env.REACT_APP_FETCH_URL;
+    const youtube_api = process.env.REACT_APP_YOUTUBE_API;
 
     const {id} = useParams();
 
+    const [connected, setConnected] = useState(false)
     const [currentVideoId, setCurrentVideoId] = useState('');
     const [queue, setQueue] = useState([]);
     const [currentVideo, setCurrentVideo] = useState('');
@@ -21,6 +24,7 @@ const Room = () => {
     const [isVisibleChat, setIsVisibleChat] = useState(false);
     const [roomData, setRoomData] = useState(null);
     const [messages, setMessages] = useState([]);
+    const messagesEndRef = useRef(null);
     const [input, setInput] = useState('')
     const [videoSearch, setVideoSearch] = useState('')
     const [videoSearchResults, setVideoSearchResults] = useState([])
@@ -28,12 +32,30 @@ const Room = () => {
     const [connection, setConnection] = useState(null)
     const [btn, setBtn] = useState()
 
+    const opts = {
+        playerVars: {
+          // https://developers.google.com/youtube/player_parameters
+          autoplay: 1,
+        },
+      };
+
+    function handleDataFromChild(data) {
+        setUser(data);
+        setConnected(!connected)
+    }
+    
+
+    const scrollToBottom = () => {
+        console.log("SCROLLING")
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      };
+
+
     async function searchYoutube(search) {
         try{
-            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${search}&type=video&key=AIzaSyCdRxZyDdm1PSYWpDk2bYOe6VxYCn5ymUY`)
+            const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${search}&type=video&key=${youtube_api}`)
             const result = await response.json()
             setVideoSearchResults(result.items)
-
 
         } catch (error) {
             console.log(error)
@@ -61,6 +83,7 @@ const Room = () => {
 
     }
     function startup(something) {
+    
         setCurrentVideo(something)
     }
 
@@ -83,15 +106,18 @@ const Room = () => {
     }
 
     function pauseYouTube () {
+        console.log("PAUSE")
         currentVideo.target.pauseVideo();
 
     }
 
     function playYouTube () {
+        console.log("PLAY")
         currentVideo.target.playVideo();
 
     }
     function moveYouTube (time) {
+        console.log("MOVE")
         currentVideo.target.seekTo(time);
     }
 
@@ -133,11 +159,14 @@ const Room = () => {
                 newConnection.on("SendMessage", (user, message, code) => {
                     updateMessages(roomData)
                 })
-
+                
 
             await newConnection.start();
             await newConnection.invoke("JoinSpecificChatRoom", user, code);        
             setConnection(newConnection);
+            if (roomData.currentVideo) {
+                setCurrentVideoId(roomData.currentVideo)
+            }
         }
         catch (error) {
             ;
@@ -206,6 +235,21 @@ const Room = () => {
         try {
             if (conn.state === HubConnectionState.Connected) {
                 await conn.invoke("ChangeVideo", user, code, vidId);
+                console.log(vidId)
+                fetch(`${url}/api/Room`, {
+                    method: 'PUT',
+                    headers: {
+                        'x-api-key': key,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "roomId": roomData.roomId,
+                        "roomName": roomData.roomName,
+                        "roomCode": roomData.roomCode,
+                        "currentVideo" : vidId
+                    })})
+            
 
             } else {
                 console.warn("SignalR connection is not in the 'Connected' state. Message not sent.");
@@ -214,7 +258,6 @@ const Room = () => {
             console.error("Error sending message:", error);
         }
 
-        
     }
 
 // Fetch Room Data
@@ -239,6 +282,13 @@ const Room = () => {
         const resetConnections = () => {
             try {
                 if (connection.state === HubConnectionState.Connected) {
+
+                    connection.off("PauseVideo");
+                    connection.off("MoveVideoTime");
+                    connection.off("PlayVideo");
+
+
+
                     connection.on("PauseVideo", (user, code) => {
                         pauseYouTube()
                     })
@@ -255,48 +305,66 @@ const Room = () => {
         resetConnections();
     },[currentVideo])
 
+    useEffect(()=> {
+        establishConnection(user, id);
+        updateMessages(roomData)
+    },[connected])
+
+
+    useEffect(() => {
+        setTimeout(scrollToBottom, 300);
+      }, [messages]); // Dependency array includes `messages` to trigger scrolling on update
+
     if (!roomData) {
         return <div>Fetching...</div>
     }
 
     return (
-        <div>
-            <Button onClick={()=> console.log(currentVideo.target)}>BUTTON</Button>
-            <h1>{roomData.roomName}</h1>
-            <h1>{roomData.roomId}</h1>
-            <h1>Code: {id}</h1>
-            {isVisibleUser && <Form id="submitUser" onSubmit={(e) => {
-                e.preventDefault();
-                establishConnection(user, id);
-                toggleVisibility();
-                updateMessages(roomData)
-                }}>
-                <FormControl placeholder="Enter name" onChange={e => setUser(e.target.value)}></FormControl>
-                <Button type="submit" form="submitUser">Submit</Button>
-            </Form>}
-            {isVisibleChat && 
-            <Form id="submitMessage" onSubmit={(e)=> {
-                e.preventDefault();
-                handleSubmit();
-                sendMessage(connection, user, input, id);
-                setInput("");
-                cooldown();
-            }}>
-                <FormControl placeholder="Enter message" value={input} onChange={e => setInput(e.target.value)}></FormControl>
-                <Button disabled={btn} type="submit" form="submitMessage">Send</Button>
-            </Form>}
-            <Form id="searchVideos" onSubmit={(e)=> {
-                e.preventDefault()
-                searchYoutube(videoSearch)
-            }}>
+        <div className="background">
+            <Navbar className="navBar" fixed="top">
+                <h4>Room Name: {roomData.roomName}</h4>
+                <h4>Room Code: {id}</h4>
+                <Form className="search" id="searchVideos" onSubmit={(e)=> {
+                    e.preventDefault()
+                    searchYoutube(videoSearch)}}>
                 <FormControl placeholder="Search videos" value={videoSearch} onChange={e => setVideoSearch(e.target.value)}></FormControl>
-                <Button type="submit" form="searchVideos">Search</Button>
-            </Form>
-            {messages.map((message, index) => <h5 key={index}>{message.author} says:  {message.contents}</h5>)}
-            <YouTube onReady={(e)=> startup(e)} videoId={currentVideoId} onStateChange={(e)=>moveVideoTime(e, connection, user, id)} onPause={()=> pauseForAll(connection, user, id)}  onPlay={(e)=> {playForAll(connection, user, id)}} ></YouTube>
-            <Stack>
-                {videoSearchResults.map((vid, index) => <div onClick={() => {changeVidForAll(connection, user, id, vid.id.videoId)}} key={index}>{decodeHtml(vid.snippet.title)}</div>)}
-            </Stack>
+                <Button type="submit" form="searchVideos">Search</Button>        
+                </Form>            
+            </Navbar>
+            
+            <UserModal username={handleDataFromChild}></UserModal>
+            <div className="grid-container">
+                
+                <YouTube opts={opts} iframeClassName="videoPlayer" onReady={(e)=> startup(e)} videoId={currentVideoId} onStateChange={(e)=>moveVideoTime(e, connection, user, id)} onPause={()=> pauseForAll(connection, user, id)}  onPlay={(e)=> {playForAll(connection, user, id)}} ></YouTube>
+                
+                <div id="chatroomContainer">
+                    <div id="chatroom">
+                        <div id="style-1" className="messages">
+                            {messages.map((message, index) => <p className="text" key={index}>{message.author} says:  {message.contents}</p>)} 
+                            <div ref={messagesEndRef} />
+                        </div>  
+                        <Form className="textbox" id="submitMessage" onSubmit={(e)=> {
+                            e.preventDefault();
+                            handleSubmit();
+                            sendMessage(connection, user, input, id);
+                            setInput("");
+                            cooldown();
+                            }}>    
+                            <FormControl placeholder="Enter message" value={input} onChange={e => setInput(e.target.value)}></FormControl>
+                            <Button type="submit" form="submitMessage">Send</Button>
+                        </Form>
+                    </div>   
+                </div>
+                <div className="resultsContainer">
+                    {videoSearchResults.map((vid, index) => 
+                        <div className="resultsItems" onClick={() => {changeVidForAll(connection, user, id, vid.id.videoId)}} key={index}>
+                            <img className="thumbnails" src={vid.snippet.thumbnails.default.url}/>
+                            <p className="text">{decodeHtml(vid.snippet.title)}</p>
+                        </div>
+                    )}
+                </div>   
+                
+            </div>
         </div>
     )
 }

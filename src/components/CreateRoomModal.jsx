@@ -37,7 +37,8 @@ export default function CreateRoomModal() {
     body: JSON.stringify({
         "id": 0,
         "roomName": name,
-        "roomCode": roomCode
+        "roomCode": roomCode,
+        "currentVideo": ""
       })
 })
   setTimeout(() => {navigate(`/room/${roomCode}`)}, 1000);
