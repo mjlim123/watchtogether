@@ -7,12 +7,14 @@ const WaitingRoom = () => {
 
 
 return (
-<div className="waitingroomContainer">
-    <h1>Watchtogether</h1>
-    <CreateRoomModal />
-    <JoinRoomModal />
+    <div className="background">
+        <div className="waitingroomContainer">
+            <h1 className="waitingroomText">WatchParty</h1>
+            <CreateRoomModal />
+            <JoinRoomModal />
+        </div>
+    </div>
 
-</div>
 )
 }
 

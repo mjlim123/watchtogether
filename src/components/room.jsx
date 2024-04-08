@@ -47,7 +47,7 @@ const Room = () => {
 
     const scrollToBottom = () => {
         console.log("SCROLLING")
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
       };
 
 
@@ -340,8 +340,8 @@ const Room = () => {
                 <div id="chatroomContainer">
                     <div id="chatroom">
                         <div id="style-1" className="messages">
-                            {messages.map((message, index) => <p className="text" key={index}>{message.author} says:  {message.contents}</p>)} 
-                            <div ref={messagesEndRef} />
+                            {messages.map((message, index) => <p className="text" key={index}>{message.author}:&nbsp;&nbsp;{message.contents}</p>)} 
+                            <div ref={messagesEndRef}></div>
                         </div>  
                         <Form className="textbox" id="submitMessage" onSubmit={(e)=> {
                             e.preventDefault();
