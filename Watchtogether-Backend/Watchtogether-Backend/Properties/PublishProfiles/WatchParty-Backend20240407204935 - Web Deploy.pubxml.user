@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project>
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAPJuDYNs/kU+Pw9rySisQUgAAAAACAAAAAAAQZgAAAAEAACAAAAB0YQbWHeu/r7P6W6+a/KR1jl/a5YhPfE1JlcZnF4PsMgAAAAAOgAAAAAIAACAAAADt4urC/z/MZYvYa9T41kBtVaHiY6XTzw0WRKONm+RC5YAAAAC1562y+0UuzAAZGKEDXBRmLW7bHBR++IW8MSac/5a3CT9N1b4hrydvw2o2JdEpjU8XSB2QTFc+4z8sZRIQTz/UEaArbdHdlN111lviFJljCV9IbwcIC909NUl4iG+9rnJg+hbG7qo1OjS+2MxNCqiUa0G5ZkGAxcH+jWPT94o45kAAAAD9Dp42yIf5mcGxDygzRgHMDliR3dw9IznPwdTLikFEuRnDr2Ao0JHEQeKsqpXjkZn+5V0UwJqKr4Bh7l42PWO/</EncryptedPassword>
+    <History>True|2024-04-08T02:38:13.1863803Z;True|2024-04-07T21:28:31.3195643-05:00;True|2024-04-07T21:11:27.2840719-05:00;True|2024-04-07T20:54:27.1908079-05:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+  <ItemGroup>
+    <EFMigrations Include="Watchtogether_Backend.Data.DataContext">
+      <Value>Data Source=watchparty-backenddbserver.database.windows.net,1433%3bInitial Catalog=Watchtogether-Backend_db%3bUser ID=mjlim0802%3bPassword=Mjlizbel0802!</Value>
+    </EFMigrations>
+  </ItemGroup>
+</Project>

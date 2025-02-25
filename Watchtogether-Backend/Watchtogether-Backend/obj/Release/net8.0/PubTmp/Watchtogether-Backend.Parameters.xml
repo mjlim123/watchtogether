@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <parameter name="IIS Web Application Name" description="" value="WatchParty-Backend20240407204935" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^F:\\Projects\\Watchtogether\\Watchtogether-Backend\\Watchtogether-Backend\\obj\\Release\\net8\.0\\PubTmp\\Out\\$" />
+  </parameter>
+  <parameter name="Watchtogether_Backend.Data.DataContext" description="" value="Data Source=watchparty-backenddbserver.database.windows.net,1433;Initial Catalog=Watchtogether-Backend_db;User ID=mjlim0802;Password=Mjlizbel0802!" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^F:\\Projects\\Watchtogether\\Watchtogether-Backend\\Watchtogether-Backend\\obj\\Release\\net8\.0\\PubTmp\\EFSQLScripts\\Watchtogether_Backend\.Data\.DataContext\.sql$" />
+  </parameter>
+</parameters>

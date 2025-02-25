@@ -1,0 +1,73 @@
+{
+  "dependencies": {
+    "apis1": {
+      "restored": true,
+      "restoreTime": "2024-04-08T01:53:37.0262782Z"
+    },
+    "mssql1": {
+      "restored": true,
+      "restoreTime": "2024-04-08T02:11:11.7961478Z"
+    },
+    "signalr1": {
+      "restored": true,
+      "restoreTime": "2024-04-08T02:37:49.663034Z"
+    }
+  },
+  "parameters": {
+    "mssql1.subscriptionId": {
+      "Name": "mssql1.subscriptionId",
+      "Type": "subscription",
+      "Value": "27c1f670-d2e8-4084-be81-73c87484f359"
+    },
+    "WatchParty-Backend20240407204935.resourceName": {
+      "Name": "WatchParty-Backend20240407204935.resourceName",
+      "Type": null,
+      "Value": "WatchParty-Backend20240407204935"
+    },
+    "signalr1.resourceGroupName": {
+      "Name": "signalr1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "WatchPartyBackend"
+    },
+    "mssql1.resourceGroupName": {
+      "Name": "mssql1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "WatchPartyBackend"
+    },
+    "WatchParty-Backend20240407204935.subscriptionId": {
+      "Name": "WatchParty-Backend20240407204935.subscriptionId",
+      "Type": "subscription",
+      "Value": "27c1f670-d2e8-4084-be81-73c87484f359"
+    },
+    "WatchParty-Backend20240407204935.resourceGroupName": {
+      "Name": "WatchParty-Backend20240407204935.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "WatchPartyBackend"
+    },
+    "apis1.resourceGroupLocation": {
+      "Name": "apis1.resourceGroupLocation",
+      "Type": "location",
+      "Value": "eastus"
+    },
+    "WatchParty-Backend20240407204935.resourceGroupLocation": {
+      "Name": "WatchParty-Backend20240407204935.resourceGroupLocation",
+      "Type": null,
+      "Value": "eastus"
+    },
+    "apis1.resourceGroupName": {
+      "Name": "apis1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "WatchPartyBackend"
+    },
+    "apis1.subscriptionId": {
+      "Name": "apis1.subscriptionId",
+      "Type": "subscription",
+      "Value": "27c1f670-d2e8-4084-be81-73c87484f359"
+    },
+    "signalr1.subscriptionId": {
+      "Name": "signalr1.subscriptionId",
+      "Type": "subscription",
+      "Value": "27c1f670-d2e8-4084-be81-73c87484f359"
+    }
+  }
+}

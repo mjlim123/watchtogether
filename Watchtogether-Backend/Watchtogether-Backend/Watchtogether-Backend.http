@@ -1,0 +1,10 @@
+@Watchtogether-Backend_HostAddress = https://localhost:7083
+@Watchtogether_Backend_HostAddress = http://localhost:5214
+
+
+
+
+
+GET {{Watchtogether-Backend_HostAddress}}/api/message
+
+###
